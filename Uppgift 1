@@ -1,0 +1,46 @@
+import{head, is_null, List, Pair, tail} from './list'
+import{ProbingHashtable} from './hashtables'
+type People = List<Pair<number,string>>;
+type Relations = List<Pair<number,number>>;
+type Person = {
+    id: number,
+    name: string,
+    parents: Array<number>,
+    children: Array<number>
+};
+type PersonTable = ProbingHashtable<number, Person>;
+
+function toHashtable(people: People, relations: Relations): PersonTable {
+    function id_people(people: People): number{
+        return is_null(people)
+        ? 0o0
+        : head(head(people));
+    }
+    function name_people(people: People): string{
+        return is_null(people)
+        ? ""
+        : tail(head(people));
+        
+    }
+    function relations_parents(relations: Relations): Array<number>{
+        return is_null(relations)
+        ? []
+        : Array[head(head(relations))]
+    }
+
+    function relations_children(relations: Relations): Array<number>{
+        return is_null(relations)
+        ? []
+        : Array[tail(head(relations))]
+    }
+    
+    const person: Person = { id: id_people(people),
+                             name: name_people(people),
+                             parents: relations_parents(relations),
+                             children: relations_children(relations)};
+    return person;
+}
+
+
+//the key is the birthdate of the person in format YYYYMMDD followed by a maximum of 7 digits
+//
