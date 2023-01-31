@@ -25,11 +25,13 @@ function toHashtable(people: People, relations: Relations): PersonTable {
             const person: Person = {id: head(head(people)),
                                     name:tail(head(people)),
                                     parents: Array[head(head(relations))],
-                                    children: Array[tail(head(people))];
+                                    children: Array[tail(head(people))]
 
             };
-            const new_hashtable = ph_insert(hashtables, person.id, person);
-            insert_person(remove(head(people), people), remove(head(relations)), new_hashtable);
+            ph_insert(hashtables, person.id, person);
+            return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
+        } else{
+            return hashtables;
         }
         //const hashFunction: HashFunction<Person> = (person) => person.id;
   
@@ -38,7 +40,7 @@ function toHashtable(people: People, relations: Relations): PersonTable {
     //return table;
 
     }
-
+    return insert_person(people, relations, hashtable);
 }
 //the key is the birthdate of the person in format YYYYMMDD followed by a maximum of 7 digits
 //
