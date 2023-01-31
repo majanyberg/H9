@@ -15,8 +15,8 @@ function toHashtable(people: People, relations: Relations): PersonTable {
    //Skapa ett hashtable med ph_empty
    //Skapa nya personer
    //ph_insert den nya personen i ph_empty
-   const hash_person: HashFunction<Person> = person => person.id;
-   let hashtable = ph_empty(length(people), probe_linear(hash_person));
+   const hash_person: HashFunction<number> = x => x;
+   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_person));
 
     function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
 
