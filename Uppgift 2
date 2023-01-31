@@ -1,0 +1,59 @@
+import{append, head, is_null, List, Pair, set_head, tail} from './list'
+import{ChainingHashtable, ch_empty, ch_insert, HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, probe_quadratic, ProbingHashtable} from './hashtables'
+import { length, remove } from './list_prelude';
+type People = List<Pair<number,string>>;
+type Relations = List<Pair<number,number>>;
+type Person = {
+    id: number,
+    name: string,
+    parents: Array<number>,
+    children: Array<number>
+};
+type PersonTable = ProbingHashtable<number, Person>;
+
+function toHashtable(people: People, relations: Relations): PersonTable {
+   //Skapa ett hashtable med ph_empty
+   //Skapa nya personer
+   //ph_insert den nya personen i ph_empty
+   const hash_person: HashFunction<number> = x => x;
+   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_person));
+
+    function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+
+
+        if(!is_null(people) && !is_null(relations)) {
+            const person: Person = {id: head(head(people)),
+                                    name:tail(head(people)),
+                                    parents: Array[head(head(relations))],
+                                    children: Array[tail(head(people))]};
+                                    
+            ph_insert(hashtables, person.id, person);
+            return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
+        } else{
+            return hashtables;
+        }
+
+    }
+    
+    return insert_person(people, relations, hashtable);
+}
+
+function descendants(ht: PersonTable, id: number): Array<number> | undefined{
+
+    const person = ph_lookup(ht, id);
+    if (!person) {
+        return undefined;
+    }
+    let descendant = [];
+    
+    function children_of(person: Person, descendant: Array<number>) {
+        for (let child of person.children) {
+            descendant.push(child);
+            const childPerson = ph_lookup(ht, child);
+            if (childPerson) {children_of(childPerson, descendant)};
+        }
+        return descendant;
+    }
+    return children_of(person, descendant);
+    
+}
