@@ -75,8 +75,8 @@ test('PersonTable is defined', () => {
     expect(toHashtable(list_of_people, list_of_relations)).toBeDefined()
 });
 
-test('toHashtable returns the same type as ph_empty', () => {
-    expect(typeof toHashtable).toStrictEqual(typeof ph_empty)
+test('PersonTable returns undefined for non-existent ID', () => {
+    expect(ph_lookup(toHashtable(list_of_people, list_of_relations), 123456)).toBeUndefined()
 });
 test('is correct length', () => {
         expect(toHashtable(list_of_people, list_of_relations)).toHaveLength(length(list_of_people))
