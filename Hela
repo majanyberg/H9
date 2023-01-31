@@ -1,0 +1,103 @@
+import{ head, is_null, list, List, pair, Pair, tail} from './list'
+import{ HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
+import { filter, length, list_ref, map, remove } from './list_prelude';
+type People = List<Pair<number,string>>;
+type Relations = List<Pair<number,number>>;
+type Person = {
+    id: number,
+    name: string,
+    parents: Array<number>,
+    children: Array<number>
+};
+type PersonTable = ProbingHashtable<number, Person>;
+
+function toHashtable(people: People, relations: Relations): PersonTable {
+ //Skapa ett hashtable med ph_empty
+   //Skapa nya personer
+   //ph_insert den nya personen i ph_empty
+
+   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_id));
+
+   function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+
+       if(!is_null(people) && !is_null(relations)) {
+           const person: Person = {id: head(head(people)),
+                                name:tail(head(people)),
+                                parents: [],
+                                children:[]};
+
+        
+        ph_insert(hashtables, person.id, person);
+        return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
+    } else{
+        return hashtables;
+    }
+
+}
+return insert_person(people, relations, hashtable);
+}
+
+function descendants(ht: PersonTable, id: number): Array<number> | undefined{
+    let descendant: Array<number> =[];
+    let person: Person | undefined = ph_lookup(ht, id);
+    if (person === undefined) {
+        return undefined;
+    } else{
+
+    for (let i = 0; i < person.children.length; i++) {
+      let childdescendant = descendants(ht, person.children[i]);
+      if (childdescendant) {
+          descendant = descendant.concat(childdescendant);
+      }
+  }
+  return descendant
+    }
+}
+
+const list_of_people: People = list(pair(19661125, "Helena Nyberg"), pair(20010713, "Maja Nyberg"), pair(19690213, "Claes Nyberg"));
+const list_of_relations: Relations = list(pair(19661125, 20010713), pair(19690213, 20010713));
+
+
+//Tests for toHashtable
+test('PersonTable is defined', () => {
+    expect(toHashtable(list_of_people, list_of_relations)).toBeDefined()
+});
+
+test('PersonTable contains the person.id of first element', () => {
+    expect(toHashtable(list_of_people, list_of_relations)).toContain(19661125)
+});
+
+test('is correct length', () => {
+        expect(toHashtable(list_of_people, list_of_relations)).toHaveLength(length(list_of_people))
+});
+
+test('PersonTable is indeed null', () => {
+    expect(toHashtable(null, null)).toBeNull
+});
+
+test('toHashtable is called correctly', () => {
+    expect(toHashtable(list_of_people, list_of_relations)).toBeCalled
+});
+
+
+//Tests for descendants
+
+test('descendants is called correctly', () => {
+    expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toBeCalled
+});
+
+test('descendants is defined', () => {
+    expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toBeDefined
+});
+test('descendants returns correct descendant', () => {
+    expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toContain([200107137440])
+});
+
+test('descendants returns undefined if id is not found', () => {
+    expect(descendants(toHashtable(list_of_people, list_of_relations), 19671218)).toBeUndefined
+});
+
+test('descendants returns undefined if PersonTable is null', () => {
+    expect(descendants(toHashtable(null, null), 19661125)).toBeUndefined
+});
+
