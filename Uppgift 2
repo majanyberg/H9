@@ -1,6 +1,6 @@
 import{ head, is_null, list, List, pair, Pair, tail} from './list'
 import{ HashFunction, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
-import { length, list_ref, remove } from './list_prelude';
+import { length, remove } from './list_prelude';
 type People = List<Pair<number,string>>;
 type Relations = List<Pair<number,number>>;
 type Person = {
@@ -20,11 +20,12 @@ function toHashtable(people: People, relations: Relations): PersonTable {
 
     function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
 
+
         if(!is_null(people) && !is_null(relations)) {
             const person: Person = {id: head(head(people)),
                                     name:tail(head(people)),
-                                    parents: [head(head(relations))],
-                                    children:[tail(head(relations))]};
+                                    parents: Array[head(head(relations))],
+                                    children: Array[tail(head(people))]};
 
             ph_insert(hashtables, person.id, person);
             return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
@@ -38,22 +39,18 @@ function toHashtable(people: People, relations: Relations): PersonTable {
 }
 
 function descendants(ht: PersonTable, id: number): Array<number> | undefined{
-
-    const person = ph_lookup(ht, id);
-    if (!person) {
+    let descendant: Array<number> =[];
+    let person: Person | undefined = ph_lookup(ht, id);
+    if (person === undefined) {
         return undefined;
+    } else{
+
+    for (let i = 0; i < person.children.length; i++) {
+      let childdescendant = descendants(ht, person.children[i]);
+      if (childdescendant) {
+          descendant = descendant.concat(childdescendant);
+      }
+  }
+  return descendant
     }
-    let descendant: Array<number> = [];
-    
-    //push inserts the element at the end of the array
-    function children_of(person: Person, descendant: Array<number>) {
-        for (let child of person.children) {
-            descendant.push(child);
-            const childPerson = ph_lookup(ht, child);
-            if (childPerson) {children_of(childPerson, descendant)};
-        }
-        return descendant;
-    }
-    return children_of(person, descendant);
-    
 }
