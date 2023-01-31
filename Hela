@@ -16,25 +16,41 @@ function toHashtable(people: People, relations: Relations): PersonTable {
    //Skapa nya personer
    //ph_insert den nya personen i ph_empty
 
-   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_id));
+    let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_id));
 
-   function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+    function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+        
+        function parents(id: number, relations: Relations, array: Array<number>): Array<number>{
+            return is_null(relations)
+            ? array
+            : tail(head(relations)) === id
+            ? parents(id, remove(head(relations), relations), [...array, head(head(relations))])
+            : parents(id, remove(head(relations), relations), array);
+        }
 
-       if(!is_null(people) && !is_null(relations)) {
+        function child(id: number, relations: Relations, array: Array<number>): Array<number>{
+            return is_null(relations)
+            ? array_number
+            : head(head(relations)) === id
+            ? child(id, remove(head(relations), relations), [...array, tail(head(relations))])
+            : child(id, remove(head(relations), relations), array);
+        }
+        const array_number: Array<number> = [];
+        if(!is_null(people) && !is_null(relations)) {
            const person: Person = {id: head(head(people)),
                                 name:tail(head(people)),
-                                parents: [],
-                                children:[]};
+                                parents: parents(head(head(people)), relations, array_number),
+                                children: child(head(head(people)), relations, array_number)};
 
         
-        ph_insert(hashtables, person.id, person);
-        return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
-    } else{
-        return hashtables;
-    }
+            ph_insert(hashtables, person.id, person);
+            return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
+        } else{
+            return hashtables;
+        }
 
-}
-return insert_person(people, relations, hashtable);
+    }
+        return insert_person(people, relations, hashtable);
 }
 
 function descendants(ht: PersonTable, id: number): Array<number> | undefined{
@@ -44,19 +60,18 @@ function descendants(ht: PersonTable, id: number): Array<number> | undefined{
         return undefined;
     } else{
 
-    for (let i = 0; i < person.children.length; i++) {
-      let childdescendant = descendants(ht, person.children[i]);
-      if (childdescendant) {
-          descendant = descendant.concat(childdescendant);
-      }
-  }
-  return descendant
+        for (let i = 0; i < person.children.length; i++) {
+            let childdescendant = descendants(ht, person.children[i]);
+            if (childdescendant) {
+                descendant = descendant.concat(childdescendant);
+            }
+        }
+        return descendant
     }
 }
 
 const list_of_people: People = list(pair(19661125, "Helena Nyberg"), pair(20010713, "Maja Nyberg"), pair(19690213, "Claes Nyberg"));
 const list_of_relations: Relations = list(pair(19661125, 20010713), pair(19690213, 20010713));
-
 
 //Tests for toHashtable
 test('PersonTable is defined', () => {
@@ -79,7 +94,6 @@ test('toHashtable is called correctly', () => {
     expect(toHashtable(list_of_people, list_of_relations)).toBeCalled
 });
 
-
 //Tests for descendants
 
 test('descendants is called correctly', () => {
@@ -100,4 +114,3 @@ test('descendants returns undefined if id is not found', () => {
 test('descendants returns undefined if PersonTable is null', () => {
     expect(descendants(toHashtable(null, null), 19661125)).toBeUndefined
 });
-
