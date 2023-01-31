@@ -1,6 +1,6 @@
-import{head, is_null, List, Pair, set_head, tail} from './list'
-import{ChainingHashtable, ch_empty, ch_insert, HashFunction, hash_id, ph_empty, ph_insert, probe_linear, probe_quadratic, ProbingHashtable} from './hashtables'
-import { length, remove } from './list_prelude';
+import{ head, is_null, list, List, pair, Pair, tail} from './list'
+import{ HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
+import { filter, length, list_ref, map, remove } from './list_prelude';
 type People = List<Pair<number,string>>;
 type Relations = List<Pair<number,number>>;
 type Person = {
@@ -12,35 +12,43 @@ type Person = {
 type PersonTable = ProbingHashtable<number, Person>;
 
 function toHashtable(people: People, relations: Relations): PersonTable {
-   //Skapa ett hashtable med ph_empty
+ //Skapa ett hashtable med ph_empty
    //Skapa nya personer
    //ph_insert den nya personen i ph_empty
-   const hash_person: HashFunction<number> = x => x;
-   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_person));
+
+   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_id));
 
     function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+        
+        function parents(id: number, relations: Relations, array: Array<number>): Array<number>{
+            return is_null(relations)
+            ? array
+            : tail(head(relations)) === id
+            ? parents(id, remove(head(relations), relations), [...array, head(head(relations))])
+            : parents(id, remove(head(relations), relations), array);
+        }
 
+        function child(id: number, relations: Relations, array: Array<number>): Array<number>{
+            return is_null(relations)
+            ? array_number
+            : head(head(relations)) === id
+            ? child(id, remove(head(relations), relations), [...array, tail(head(relations))])
+            : child(id, remove(head(relations), relations), array);
+        }
+        const array_number: Array<number> = [];
+       if(!is_null(people) && !is_null(relations)) {
+           const person: Person = {id: head(head(people)),
+                                name:tail(head(people)),
+                                parents: parents(head(head(people)), relations, array_number),
+                                children: child(head(head(people)), relations, array_number)};
 
-        if(!is_null(people) && !is_null(relations)) {
-            const person: Person = {id: head(head(people)),
-                                    name:tail(head(people)),
-                                    parents: Array[head(head(relations))],
-                                    children: Array[tail(head(people))]
-
-            };
+        
             ph_insert(hashtables, person.id, person);
             return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
         } else{
             return hashtables;
         }
-        //const hashFunction: HashFunction<Person> = (person) => person.id;
-  
-        
-    
-    //return table;
 
     }
-    return insert_person(people, relations, hashtable);
+        return insert_person(people, relations, hashtable);
 }
-//the key is the birthdate of the person in format YYYYMMDD followed by a maximum of 7 digits
-//
