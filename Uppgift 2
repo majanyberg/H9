@@ -1,6 +1,6 @@
-import{append, head, is_null, List, Pair, set_head, tail} from './list'
-import{ChainingHashtable, ch_empty, ch_insert, HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, probe_quadratic, ProbingHashtable} from './hashtables'
-import { length, remove } from './list_prelude';
+import{ head, is_null, list, List, pair, Pair, tail} from './list'
+import{ HashFunction, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
+import { length, list_ref, remove } from './list_prelude';
 type People = List<Pair<number,string>>;
 type Relations = List<Pair<number,number>>;
 type Person = {
@@ -20,13 +20,12 @@ function toHashtable(people: People, relations: Relations): PersonTable {
 
     function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
 
-
         if(!is_null(people) && !is_null(relations)) {
             const person: Person = {id: head(head(people)),
                                     name:tail(head(people)),
-                                    parents: Array[head(head(relations))],
-                                    children: Array[tail(head(people))]};
-                                    
+                                    parents: [head(head(relations))],
+                                    children:[tail(head(relations))]};
+
             ph_insert(hashtables, person.id, person);
             return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
         } else{
@@ -44,8 +43,9 @@ function descendants(ht: PersonTable, id: number): Array<number> | undefined{
     if (!person) {
         return undefined;
     }
-    let descendant = [];
+    let descendant: Array<number> = [];
     
+    //push inserts the element at the end of the array
     function children_of(person: Person, descendant: Array<number>) {
         for (let child of person.children) {
             descendant.push(child);
