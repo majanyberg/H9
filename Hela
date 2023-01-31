@@ -30,7 +30,7 @@ function toHashtable(people: People, relations: Relations): PersonTable {
 
         function child(id: number, relations: Relations, array: Array<number>): Array<number>{
             return is_null(relations)
-            ? array_number
+            ? array
             : head(head(relations)) === id
             ? child(id, remove(head(relations), relations), [...array, tail(head(relations))])
             : child(id, remove(head(relations), relations), array);
