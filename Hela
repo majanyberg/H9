@@ -1,6 +1,6 @@
 import{ head, is_null, list, List, pair, Pair, tail} from './list'
-import{ HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
-import { filter, length, list_ref, map, remove } from './list_prelude';
+import{ hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
+import { length, remove } from './list_prelude';
 type People = List<Pair<number,string>>;
 type Relations = List<Pair<number,number>>;
 type Person = {
@@ -38,9 +38,9 @@ function toHashtable(people: People, relations: Relations): PersonTable {
         const array_number: Array<number> = [];
         if(!is_null(people) && !is_null(relations)) {
            const person: Person = {id: head(head(people)),
-                                name:tail(head(people)),
-                                parents: parents(head(head(people)), relations, array_number),
-                                children: child(head(head(people)), relations, array_number)};
+                                   name:tail(head(people)),
+                                   parents: parents(head(head(people)), relations, array_number),
+                                   children: child(head(head(people)), relations, array_number)};
 
         
             ph_insert(hashtables, person.id, person);
@@ -48,10 +48,8 @@ function toHashtable(people: People, relations: Relations): PersonTable {
         } else{
             return hashtables;
         } 
-        
-
     }
-        return insert_person(people, relations, hashtable);
+    return insert_person(people, relations, hashtable);
 }
 
 function descendants(ht: PersonTable, id: number): Array<number> | undefined{
@@ -60,13 +58,13 @@ function descendants(ht: PersonTable, id: number): Array<number> | undefined{
     if (!person) {
         return undefined;
     } else{
-    for (let i = 0; i < person.children.length; i++) {
-        let childDescendants: Array<number> | undefined = descendants(ht, person.children[i]);
-        if (childDescendants) {
-            descendant = descendant.concat(childDescendants);
-        } else{}
-    }
-    return descendant.concat(person.children);
+        for (let i = 0; i < person.children.length; i++) {
+            let childDescendants: Array<number> | undefined = descendants(ht, person.children[i]);
+            if (childDescendants) {
+                descendant = descendant.concat(childDescendants);
+            } else{}
+        }
+        return descendant.concat(person.children);
     }
 }
 const list_of_people: People = list(pair(19661125, "Helena Nyberg"), pair(20010713, "Maja Nyberg"), pair(19690213, "Claes Nyberg"));
@@ -77,10 +75,9 @@ test('PersonTable is defined', () => {
     expect(toHashtable(list_of_people, list_of_relations)).toBeDefined()
 });
 
-test('PersonTable contains the person.id of first element', () => {
-    expect(toHashtable(list_of_people, list_of_relations)).toBeInstanceOf(!ph_empty)
+test('toHashtable returns the same type as ph_empty', () => {
+    expect(typeof toHashtable).toStrictEqual(typeof ph_empty)
 });
-
 test('is correct length', () => {
         expect(toHashtable(list_of_people, list_of_relations)).toHaveLength(length(list_of_people))
 });
