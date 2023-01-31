@@ -1,6 +1,6 @@
 import{ head, is_null, list, List, pair, Pair, tail} from './list'
-import{ HashFunction, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
-import { length, remove } from './list_prelude';
+import{ HashFunction, hash_id, ph_empty, ph_insert, ph_lookup, probe_linear, ProbingHashtable} from './hashtables'
+import { filter, length, list_ref, map, remove } from './list_prelude';
 type People = List<Pair<number,string>>;
 type Relations = List<Pair<number,number>>;
 type Person = {
@@ -12,21 +12,21 @@ type Person = {
 type PersonTable = ProbingHashtable<number, Person>;
 
 function toHashtable(people: People, relations: Relations): PersonTable {
-   //Skapa ett hashtable med ph_empty
+ //Skapa ett hashtable med ph_empty
    //Skapa nya personer
    //ph_insert den nya personen i ph_empty
-   const hash_person: HashFunction<number> = x => x;
-   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_person));
 
-    function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
+   let hashtable = ph_empty<number, Person>(length(people), probe_linear(hash_id));
 
+   function insert_person(people: People, relations: Relations, hashtables: ProbingHashtable<number,Person>): PersonTable {
 
-        if(!is_null(people) && !is_null(relations)) {
-            const person: Person = {id: head(head(people)),
-                                    name:tail(head(people)),
-                                    parents: Array[head(head(relations))],
-                                    children: Array[tail(head(people))]};
+       if(!is_null(people) && !is_null(relations)) {
+           const person: Person = {id: head(head(people)),
+                                name:tail(head(people)),
+                                parents: [],
+                                children: []};
 
+        
             ph_insert(hashtables, person.id, person);
             return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
         } else{
@@ -34,8 +34,7 @@ function toHashtable(people: People, relations: Relations): PersonTable {
         }
 
     }
-    
-    return insert_person(people, relations, hashtable);
+        return insert_person(people, relations, hashtable);
 }
 
 function descendants(ht: PersonTable, id: number): Array<number> | undefined{
@@ -45,12 +44,12 @@ function descendants(ht: PersonTable, id: number): Array<number> | undefined{
         return undefined;
     } else{
 
-    for (let i = 0; i < person.children.length; i++) {
-      let childdescendant = descendants(ht, person.children[i]);
-      if (childdescendant) {
-          descendant = descendant.concat(childdescendant);
-      }
-  }
-  return descendant
+        for (let i = 0; i < person.children.length; i++) {
+            let childdescendant = descendants(ht, person.children[i]);
+            if (childdescendant) {
+                descendant = descendant.concat(childdescendant);
+            }
+        }
+        return descendant
     }
 }
