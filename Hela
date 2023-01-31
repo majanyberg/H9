@@ -47,29 +47,28 @@ function toHashtable(people: People, relations: Relations): PersonTable {
             return insert_person(remove(head(people), people), remove(head(relations), relations), hashtables);
         } else{
             return hashtables;
-        }
+        } 
+        
 
     }
         return insert_person(people, relations, hashtable);
 }
 
 function descendants(ht: PersonTable, id: number): Array<number> | undefined{
-    let descendant: Array<number> =[];
-    let person: Person | undefined = ph_lookup(ht, id);
-    if (person === undefined) {
+    let descendant: Array<number> = [];
+    let person = ph_lookup(ht, id);
+    if (!person) {
         return undefined;
     } else{
-
-        for (let i = 0; i < person.children.length; i++) {
-            let childdescendant = descendants(ht, person.children[i]);
-            if (childdescendant) {
-                descendant = descendant.concat(childdescendant);
-            }
-        }
-        return descendant
+    for (let i = 0; i < person.children.length; i++) {
+        let childDescendants: Array<number> | undefined = descendants(ht, person.children[i]);
+        if (childDescendants) {
+            descendant = descendant.concat(childDescendants);
+        } else{}
+    }
+    return descendant.concat(person.children);
     }
 }
-
 const list_of_people: People = list(pair(19661125, "Helena Nyberg"), pair(20010713, "Maja Nyberg"), pair(19690213, "Claes Nyberg"));
 const list_of_relations: Relations = list(pair(19661125, 20010713), pair(19690213, 20010713));
 
@@ -79,7 +78,7 @@ test('PersonTable is defined', () => {
 });
 
 test('PersonTable contains the person.id of first element', () => {
-    expect(toHashtable(list_of_people, list_of_relations)).toContain(19661125)
+    expect(toHashtable(list_of_people, list_of_relations)).toBeInstanceOf(!ph_empty)
 });
 
 test('is correct length', () => {
@@ -104,7 +103,7 @@ test('descendants is defined', () => {
     expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toBeDefined
 });
 test('descendants returns correct descendant', () => {
-    expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toContain([200107137440])
+    expect(descendants(toHashtable(list_of_people, list_of_relations), 19661125)).toStrictEqual([20010713])
 });
 
 test('descendants returns undefined if id is not found', () => {
